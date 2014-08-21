@@ -16,14 +16,20 @@ def main_menu
   puts "***Surveys!!***\n\n"
 
   loop do
-    puts "[1] - Create a new Survey"
-    puts "[2] - View all Surveys"
-    puts "[3] - Remove Surveys"
-    puts "[4] - Add questions to a Survey"
-    puts "[5] - View all Questions"
-    puts "[6] - Delete a Question"
-    puts "[7] - Add answers to a question"
-    puts "[8] - Take a survey"
+    puts "[1] - Add Survey"
+    puts "[2] - View Surveys"
+    puts "[3] - Delete Survey"
+    puts "\n[== Questions ==]\n"
+    puts "[4] - Add question"
+    puts "[5] - View Questions"
+    puts "[6] - Delete Question"
+    puts "\n[== Choices/Answers ==]\n"
+    puts "[7] - Add choices to question"
+    puts "[8] - View choices"
+    puts "\n[== Survey ==]\n"
+    puts "[9] - Create a User ID"
+    puts "[10] - Take a survey"
+    puts "\n"
     puts "Press 'x' to exit"
     menu_choice = gets.chomp
     if menu_choice == '1'
@@ -39,8 +45,12 @@ def main_menu
     elsif menu_choice == '6'
       delete_question
     elsif menu_choice == '7'
-      add_answers
+      add_choice
     elsif menu_choice == '8'
+      view_choices
+    elsif menu_choice == '9'
+        create_user
+    elsif menu_choice == '10'
       take_survey
     elsif menu_choice == 'x'
       puts "Goodbye!"
@@ -105,5 +115,45 @@ def delete_question
   puts "'#{current_question.description}' has been deleted."
   puts "\n"
 end
+
+def add_choice
+  puts "Add choices to a question"
+  puts "-------------------------"
+  view_questions
+  print "Enter [#] of question to add choices to: "
+  question_input = gets.chomp.to_i
+  current_question = Question.find(question_input)
+  3.times do
+    puts "Enter possible answer: "
+    answer_input = gets.chomp
+    answer = Choice.create({description: answer_input})
+    current_question.choices << answer
+  end
+
+end
+
+def view_choices
+  view_questions
+  print "Enter [#] of question to view choices"
+  question_input = gets.chomp.to_i
+  current_question = Question.find(question_input)
+  system("clear")
+  puts "'#{current_question.description}'\n"
+  puts "[id] -- Description"
+  puts "---------------------------------"
+  current_question.choices.each  do |choice|
+    puts "[#{choice.id}] -- #{choice.description}"
+  end
+  puts "\n\n"
+end
+
+def create_user
+puts "Please enter a User name:"
+end
+
+def take_survey
+puts ""
+end
+
 
 main_menu
