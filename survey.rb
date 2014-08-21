@@ -148,7 +148,16 @@ def view_choices
 end
 
 def create_user
-puts "Please enter a User name:"
+  print "Please enter a User name: "
+  user_name = gets.chomp
+  puts "\n"
+  current_name = Taker.new({:user => user_name})
+  if current_name.save
+    puts "#{current_name.user} has been saved."
+  else
+    puts "Error. Please try again."
+  end
+  puts "\n"
 end
 
 def take_survey
