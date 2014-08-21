@@ -200,12 +200,13 @@ def take_survey
       puts "[#{choice.id}] #{choice.description}"
     end
     print "\nEnter the [#] of your choice: "
-    choice_answer = gets.chomp
-    questions.responses << Response.create({choice_id: choice_answer, question_id: question.id})
+    choice_answer = gets.chomp.to_i
+    current_response = Response.create({choice_id: choice_answer, question_id: question.id, taker_id: current_taker.id})
+    question.responses << current_response
+
   end
+  puts "Thank you for taking the survey. Here are your results: "
 
-
-  puts "ok what now"
   puts "\n"
 
 end
