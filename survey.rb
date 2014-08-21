@@ -21,8 +21,9 @@ def main_menu
     puts "[3] - Remove Surveys"
     puts "[4] - Add questions to a Survey"
     puts "[5] - View all Questions"
-    puts "[6] - Add answers to a question"
-    puts "[7] - Take a survey"
+    puts "[6] - Delete a Question"
+    puts "[7] - Add answers to a question"
+    puts "[8] - Take a survey"
     puts "Press 'x' to exit"
     menu_choice = gets.chomp
     if menu_choice == '1'
@@ -36,8 +37,10 @@ def main_menu
     elsif menu_choice == '5'
       view_questions
     elsif menu_choice == '6'
-      add_answers
+      delete_question
     elsif menu_choice == '7'
+      add_answers
+    elsif menu_choice == '8'
       take_survey
     elsif menu_choice == 'x'
       puts "Goodbye!"
@@ -71,6 +74,36 @@ current_survey = Survey.find(user_input)
 puts "#{current_survey.name} removed."
 current_survey.delete
 puts "\n\n"
+end
+
+def add_question
+  view_surveys
+  print "\nSelect survey [#] to add a question:"
+  survey_input = gets.chomp.to_i
+  current_survey = Survey.find(survey_input)
+  puts "\nWrite your survey question here:"
+  user_question = gets.chomp
+  new_question = Question.create({:description => user_question, :survey_id => survey_input})
+  puts "\n'#{new_question.description}' has been added to survey: #{current_survey.name}."
+  puts "\n"
+end
+
+def view_questions
+  puts "Questions: "
+  puts "[id] -- Survey -- Description"
+  puts "--------------------------------"
+  Question.all.each {|question| puts "[#{question.id}] -- #{question.survey_id} -- #{question.description}" }
+  puts "\n\n"
+end
+
+def delete_question
+  view_questions
+  puts "\nSelect question [#] to delete:"
+  question_select = gets.chomp.to_i
+  current_question = Question.find(question_select)
+  current_question.delete
+  puts "'#{current_question.description}' has been deleted."
+  puts "\n"
 end
 
 main_menu
