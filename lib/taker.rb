@@ -1,6 +1,6 @@
 class Taker < ActiveRecord::Base
   belongs_to :survey
-  belongs_to :response
+  has_many :responses
   before_save :downcase_user
 
   validates :user, :presence => true, :length => { :maximum => 12 }

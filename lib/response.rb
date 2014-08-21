@@ -2,6 +2,6 @@ class Response < ActiveRecord::Base
 
 belongs_to :choice
 belongs_to :question
-has_many :takers
+belongs_to :taker
 
 end
