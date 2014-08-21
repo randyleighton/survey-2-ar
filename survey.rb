@@ -64,8 +64,13 @@ def view_surveys
 end
 
 def remove_surveys
-
+view_surveys
+print "\n\nSurvey [#] to remove:"
+user_input = gets.chomp.to_i
+current_survey = Survey.find(user_input)
+puts "#{current_survey.name} removed."
+current_survey.delete
+puts "\n\n"
 end
-
 
 main_menu
