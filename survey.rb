@@ -28,7 +28,8 @@ def main_menu
     puts "[8] - View choices"
     puts "\n[== Survey ==]\n"
     puts "[9] - Create a User ID"
-    puts "[10] - Take a survey"
+    puts "[10] - Delete User Login"
+    puts "[11] - Take a survey"
     puts "\n"
     puts "Press 'x' to exit"
     menu_choice = gets.chomp
@@ -51,6 +52,8 @@ def main_menu
     elsif menu_choice == '9'
         create_user
     elsif menu_choice == '10'
+        delete_user_login
+    elsif menu_choice == '11'
       take_survey
     elsif menu_choice == 'x'
       puts "Goodbye!"
@@ -126,8 +129,8 @@ def add_choice
   3.times do
     puts "Enter possible answer: "
     answer_input = gets.chomp
-    answer = Choice.create({description: answer_input})
-    current_question.choices << answer
+    choice_answer = Choice.create({description: answer_input})
+    current_question.choices << choice_answer
   end
 
 end
@@ -160,8 +163,51 @@ def create_user
   puts "\n"
 end
 
+def view_user_logins
+  puts "User Logins: "
+  puts "[id] -- Username"
+  puts "--------------"
+  Taker.all.each {|taker| puts "#{taker.id} -- #{taker.user}"}
+end
+
+def delete_user_login
+  view_user_logins
+  print "Choose login [#] to delete: "
+  delete_choice = gets.chomp.to_i
+  current_taker = Taker.find(delete_choice)
+  puts "#{current_taker.user} deleted."
+  current_taker.delete
+  puts "\n"
+end
+
 def take_survey
-puts ""
+  view_user_logins
+  print "choose User id [#] "
+  taker_input = gets.chomp.to_i
+  current_taker = Taker.find(taker_input)
+  system("clear")
+  puts "#{current_taker.user} logged in."
+  view_surveys
+  print "\nSelect survey [#] to take survey:"
+  survey_input = gets.chomp.to_i
+  current_survey = Survey.find(survey_input)
+  puts "Question:"
+  puts "[id] -- question"
+  puts "----------------"
+  current_survey.questions.each do |question|
+    puts "#{question.id} -- #{question.description}"
+    question.choices.each do |choice|
+      puts "[#{choice.id}] #{choice.description}"
+    end
+    print "\nEnter the [#] of your choice: "
+    choice_answer = gets.chomp
+    questions.responses << Response.create({choice_id: choice_answer, question_id: question.id})
+  end
+
+
+  puts "ok what now"
+  puts "\n"
+
 end
 
 
