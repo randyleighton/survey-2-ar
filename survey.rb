@@ -4,6 +4,7 @@ require './lib/question'
 require './lib/response'
 require './lib/taker'
 require './lib/choice'
+require './lib/colors'
 require 'pry'
 
 database_configurations = YAML::load(File.open('./db/config.yml'))
@@ -13,25 +14,26 @@ ActiveRecord::Base.establish_connection(development_configuration)
 def main_menu
 
   system("clear")
-  puts "***Surveys!!***\n\n"
+  puts "***Surveys!!***\n\n".blue
 
   loop do
     puts "[1] - Add Survey"
     puts "[2] - View Surveys"
     puts "[3] - Delete Survey"
-    puts "\n[== Questions ==]\n"
+    puts "\n[== Questions ==]\n".green
     puts "[4] - Add question"
     puts "[5] - View Questions"
     puts "[6] - Delete Question"
-    puts "\n[== Choices/Answers ==]\n"
+    puts "\n[== Choices/Answers ==]\n".green
     puts "[7] - Add choices to question"
     puts "[8] - View choices"
-    puts "\n[== Survey ==]\n"
+    puts "\n[== Survey ==]\n".green
     puts "[9] - Create a User ID"
     puts "[10] - Delete User Login"
     puts "[11] - Take a survey"
+    puts "[12] - View Survey Results"
     puts "\n"
-    puts "Press 'x' to exit"
+    puts "Press 'x' to exit".red
     menu_choice = gets.chomp
     if menu_choice == '1'
       create_survey
@@ -55,8 +57,10 @@ def main_menu
         delete_user_login
     elsif menu_choice == '11'
       take_survey
+    elsif menu_choice == '12'
+      view_results
     elsif menu_choice == 'x'
-      puts "Goodbye!"
+      puts "Goodbye!".bg_red.cyan
       exit
     else
       puts "Please input a valid choice"
@@ -71,7 +75,7 @@ def create_survey
   puts "#{new_survey.name} has been created.\n"
 end
 
-def view_surveys
+def view_survey_list
   puts "Surveys: "
   puts "[id] -- Name"
   puts "--------------"
@@ -79,9 +83,33 @@ def view_surveys
   puts "\n\n"
 end
 
+def view_surveys
+  puts "Surveys: "
+  puts "[id] -- Name"
+  puts "--------------"
+  Survey.all.each {|survey| puts "[#{survey.id}] -- #{survey.name}" }
+  puts "\n\n"
+  print "\nSelect survey [#] to view full survey: "
+  survey_input = gets.chomp.to_i
+  current_survey = Survey.find(survey_input)
+  system("clear")
+  puts "Survey: #{current_survey.name}"
+  puts "\n"
+  puts "[id] -- question"
+  puts "----------------"
+  current_survey.questions.each do |question|
+    puts "#{question.id} -- #{question.description}"
+    question.choices.each do |choice|
+      puts "#{choice.description}"
+    end
+    puts "\n"
+  end
+  puts "---------------------"
+end
+
 def remove_surveys
 view_surveys
-print "\n\nSurvey [#] to remove:"
+print "\n\nSurvey [#] to remove: "
 user_input = gets.chomp.to_i
 current_survey = Survey.find(user_input)
 puts "#{current_survey.name} removed."
@@ -90,15 +118,20 @@ puts "\n\n"
 end
 
 def add_question
-  view_surveys
-  print "\nSelect survey [#] to add a question:"
+  view_survey_list
+  print "\nSelect survey [#] to add a question: "
   survey_input = gets.chomp.to_i
   current_survey = Survey.find(survey_input)
-  puts "\nWrite your survey question here:"
+  puts "\nWrite your survey question here: "
   user_question = gets.chomp
   new_question = Question.create({:description => user_question, :survey_id => survey_input})
   puts "\n'#{new_question.description}' has been added to survey: #{current_survey.name}."
   puts "\n"
+  3.times do
+    puts "Enter possible answer: "
+    answer_input = gets.chomp
+    choice_answer = Choice.create({description: answer_input, question_id: new_question.id})
+  end
 end
 
 def view_questions
@@ -111,7 +144,7 @@ end
 
 def delete_question
   view_questions
-  puts "\nSelect question [#] to delete:"
+  puts "\nSelect question [#] to delete: "
   question_select = gets.chomp.to_i
   current_question = Question.find(question_select)
   current_question.delete
@@ -125,19 +158,19 @@ def add_choice
   view_questions
   print "Enter [#] of question to add choices to: "
   question_input = gets.chomp.to_i
+  puts "\n"
   current_question = Question.find(question_input)
   3.times do
     puts "Enter possible answer: "
     answer_input = gets.chomp
-    choice_answer = Choice.create({description: answer_input})
-    current_question.choices << choice_answer
+    choice_answer = Choice.create({description: answer_input, question_id: current_question.id})
   end
-
+  puts "\n"
 end
 
 def view_choices
   view_questions
-  print "Enter [#] of question to view choices"
+  print "Enter [#] of question to view choices: "
   question_input = gets.chomp.to_i
   current_question = Question.find(question_input)
   system("clear")
@@ -187,7 +220,7 @@ def take_survey
   current_taker = Taker.find(taker_input)
   system("clear")
   puts "#{current_taker.user} logged in."
-  view_surveys
+  view_survey_list
   print "\nSelect survey [#] to take survey:"
   survey_input = gets.chomp.to_i
   current_survey = Survey.find(survey_input)
@@ -200,16 +233,33 @@ def take_survey
       puts "[#{choice.id}] #{choice.description}"
     end
     print "\nEnter the [#] of your choice: "
-    choice_answer = gets.chomp.to_i
-    current_response = Response.create({choice_id: choice_answer, question_id: question.id, taker_id: current_taker.id})
-    question.responses << current_response
-
+    choice_answer = gets.chomp
+    current_response = Response.new({choice_id: choice_answer, question_id: question.id, taker_id: current_taker.id})
+    if current_response.save
+      puts "Response #(#{current_response.id}) has been saved."
+    else
+      puts "Error. Please try again."
+      redo
+    end
   end
-  puts "Thank you for taking the survey. Here are your results: "
-
   puts "\n"
-
 end
 
+def view_results
+  view_survey_list
+  print "\nSelect survey [#] to view survey responses:"
+  survey_input = gets.chomp.to_i
+  system("clear")
+  current_survey = Survey.find(survey_input)
+  current_survey.responses.each do |response|
+    current_responder = Taker.find(response.taker_id)
+    current_question = Question.find(response.question_id)
+    current_choice = Choice.find(response.choice_id)
+    puts "Survey Taker: #{current_responder.user} -- Question: #{current_question.description}"
+    puts "-- answer: #{current_choice.description}"
+    puts "--------------------------------------------"
+  end
+  puts "\n"
+end
 
 main_menu
