@@ -8,7 +8,7 @@ class Taker < ActiveRecord::Base
 private
 
   def downcase_user
-    self.user = self.user.capitalize
+    self.user = self.user.downcase.capitalize
   end
 
 end

@@ -14,8 +14,8 @@ ActiveRecord::Base.establish_connection(development_configuration)
 def main_menu
 
   system("clear")
-  puts "***Surveys!!***\n".blue
   loop do
+    puts "***Surveys!!***\n".blue
     puts "[1] - Add Survey"
     puts "[2] - View Surveys"
     puts "[3] - Delete Survey"
