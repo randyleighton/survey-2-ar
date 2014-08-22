@@ -31,7 +31,8 @@ def main_menu
     puts "[9] - Create a User ID"
     puts "[10] - Delete User Login"
     puts "[11] - Take a survey"
-    puts "[12] - View Survey Results"
+    puts "[12] - View Individual Survey Results"
+    puts "[13] - View Total Results"
     puts "\n"
     puts "Press 'x' to exit".red
     menu_choice = gets.chomp
@@ -59,6 +60,8 @@ def main_menu
       take_survey
     elsif menu_choice == '12'
       view_results
+    elsif menu_choice == '13'
+      view_totals_averages
     elsif menu_choice == 'x'
       puts "Goodbye!".bg_red.cyan
       exit
@@ -221,7 +224,7 @@ def take_survey
   system("clear")
   puts "#{current_taker.user} logged in."
   view_survey_list
-  print "\nSelect survey [#] to take survey:"
+  print "\nSelect survey [#] to take survey: "
   survey_input = gets.chomp.to_i
   current_survey = Survey.find(survey_input)
   puts "Question:"
@@ -247,19 +250,40 @@ end
 
 def view_results
   view_survey_list
-  print "\nSelect survey [#] to view survey responses:"
+  print "\nSelect survey [#] to view survey responses: "
   survey_input = gets.chomp.to_i
   system("clear")
   current_survey = Survey.find(survey_input)
+    current_survey.responses.each do |response|
+      current_responder = Taker.find(response.taker_id)
+      current_question = Question.find(response.question_id)
+      current_choice = Choice.find(response.choice_id)
+      puts "Survey Taker: #{current_responder.user} -- Question: #{current_question.description}"
+      puts "-- answer: #{current_choice.description}"
+      puts "--------------------------------------------"
+      puts "\n"
+    end
+
+end
+
+def view_totals_averages
+  view_survey_list
+  print "\nSelect survey [#] to view survey responses: "
+  survey_input = gets.chomp.to_i
+  system("clear")
+  current_survey = Survey.find(survey_input)
+  puts "[========== Survey Responses =============]"
   current_survey.responses.each do |response|
-    current_responder = Taker.find(response.taker_id)
     current_question = Question.find(response.question_id)
-    current_choice = Choice.find(response.choice_id)
-    puts "Survey Taker: #{current_responder.user} -- Question: #{current_question.description}"
-    puts "-- answer: #{current_choice.description}"
-    puts "--------------------------------------------"
+    total_responses = current_question.responses.length
+    nacho = 0
+    puts "-------------Question Result--------------------"
+    puts "Description -- Number times chosen -- Percentage"
+    current_question.choices.each do |choice|
+      average = (choice.responses.length.to_f / total_responses.to_f) * 100
+      puts "#{choice.description} : #{choice.responses.length} : #{average}%"
+    end
   end
-  puts "\n"
 end
 
 main_menu
