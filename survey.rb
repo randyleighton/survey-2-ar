@@ -14,20 +14,19 @@ ActiveRecord::Base.establish_connection(development_configuration)
 def main_menu
 
   system("clear")
-  puts "***Surveys!!***\n\n".blue
-
+  puts "***Surveys!!***\n".blue
   loop do
     puts "[1] - Add Survey"
     puts "[2] - View Surveys"
     puts "[3] - Delete Survey"
-    puts "\n[== Questions ==]\n".green
+    puts "[== Questions ==]".green
     puts "[4] - Add question"
     puts "[5] - View Questions"
     puts "[6] - Delete Question"
-    puts "\n[== Choices/Answers ==]\n".green
+    puts "[== Choices/Answers ==]".green
     puts "[7] - Add choices to question"
     puts "[8] - View choices"
-    puts "\n[== Survey ==]\n".green
+    puts "[== Survey ==]".green
     puts "[9] - Create a User ID"
     puts "[10] - Delete User Login"
     puts "[11] - Take a survey"
@@ -278,12 +277,14 @@ def view_totals_averages
     total_choices = choices.length
     total_responses = question.responses.length
     puts question.description
+    puts "-----------------------------------------"
     choices.each do |choice|
-      puts choice.description
       total = choice.responses.length
-      puts "total: #{total}  -  #{total.to_f / total_responses*100}%"
+      puts "#{choice.description} - Responses: #{total}  -  #{total.to_f / total_responses*100}%"
     end
+    puts "\n"
   end
+  puts "\n"
 end
 
 main_menu
