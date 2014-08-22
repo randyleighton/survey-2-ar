@@ -273,15 +273,15 @@ def view_totals_averages
   system("clear")
   current_survey = Survey.find(survey_input)
   puts "[========== Survey Responses =============]"
-  current_survey.responses.each do |response|
-    current_question = Question.find(response.question_id)
-    total_responses = current_question.responses.length
-    nacho = 0
-    puts "-------------Question Result--------------------"
-    puts "Description -- Number times chosen -- Percentage"
-    current_question.choices.each do |choice|
-      average = (choice.responses.length.to_f / total_responses.to_f) * 100
-      puts "#{choice.description} : #{choice.responses.length} : #{average}%"
+  current_survey.questions.each do |question|
+    choices = question.choices
+    total_choices = choices.length
+    total_responses = question.responses.length
+    puts question.description
+    choices.each do |choice|
+      puts choice.description
+      total = choice.responses.length
+      puts "total: #{total}  -  #{total.to_f / total_responses*100}%"
     end
   end
 end
